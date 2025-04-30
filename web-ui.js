@@ -96,6 +96,8 @@ function populateDropdowns() {
             fpsDropDown.appendChild(fpsOption);
         });
     }
+    resolutionDropDown.disabled = false;
+    fpsDropDown.disabled = false;
 }
 
 // Checks the hostname, if it replies successfully then a new BMCamera object
@@ -386,18 +388,6 @@ function updateUIAll() {
     // ============ Footer Links ===============
     document.getElementById("documentationLink").href = (cameras[ci].useHTTPS ? "https://" : "http://") + cameras[ci].hostname + "/control/documentation.html";
     document.getElementById("mediaManagerLink").href = (cameras[ci].useHTTPS ? "https://" : "http://") + cameras[ci].hostname;
-
-    // ============ Resolution & FPS ===============
-    let resoObj = cameras[ci].propertyData['/system/format']?.recordResolution;
-    let fpsObj = cameras[ci].propertyData['/system/format']?.frameRate;
-
-    document.getElementById("resolutionDropDown").value = resoObj?.width + "x" + resoObj?.height;
-    document.getElementById("fpsDropDown").value = fpsObj?.toString();
-    document.getElementById("resolutionDropDown").disabled = false;
-    document.getElementById("fpsDropDown").disabled = false;
-
-    document.getElementById("resolutionDropDown").op
-
 
 }
 

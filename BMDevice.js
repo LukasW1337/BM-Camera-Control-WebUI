@@ -243,11 +243,11 @@ class BMCamera extends BMDevice {
     }
 
     doAutoFocus() {
-        this.PUTdata("/lens/focus/doAutoFocus");
+        this.PUTdata("/lens/focus/doAutoFocus", { hello: "world" });
     }
 
     doAutoWhitebalance() {
-        this.PUTdata("/video/whiteBalance/doAuto");
+        this.PUTdata("/video/whiteBalance/doAuto", { hello: "world" });
     }
 }
 
