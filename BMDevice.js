@@ -39,20 +39,20 @@ class BMDevice {
     // Reference to UI Updating callback function
     // For BYOUI purposes (Bring-Your-Own-UI). If you're using this class for your own UI, 
     //  set this function to point to your UI updater.
-    updateUI() {};
+    updateUI() { };
 
     // ============= CONSTRUCTOR ================
-    constructor(hostname, secure=false) {
+    constructor(hostname, secure = false) {
         // Set Security
         this.useHTTPS = secure;
 
         // Set name properties
-        this.hostname = hostname;
-        this.APIAddress = (this.useHTTPS ? "https://" : "http://")+hostname+"/control/api/v1";
-        this.name = this.hostname.replace(".local","").replaceAll("-"," ");
+        this.hostname = hostname.replace(/http[s]?:\/\//, "")
+        this.APIAddress = (this.useHTTPS ? "https://" : "http://") + hostname + "/control/api/v1";
+        this.name = this.hostname.replace(".local", "").replaceAll("-", " ");
 
         // Initialize WebSocket
-        this.ws = new WebSocket((this.useHTTPS ? "wss://" : "ws://")+hostname+"/control/api/v1/event/websocket");
+        this.ws = new WebSocket((this.useHTTPS ? "wss://" : "ws://") + hostname + "/control/api/v1/event/websocket");
 
         // Get a self object for accessing within callback fns
         var self = this;
@@ -94,12 +94,12 @@ class BMDevice {
             // Once the WebSocket is open,
 
             // Ask it for all the properties
-            self.ws.send(JSON.stringify({type: "request", data: {action: "listProperties"}}));
+            self.ws.send(JSON.stringify({ type: "request", data: { action: "listProperties" } }));
 
             sleep(100).then(() => {
                 // Subscribe to all available events
                 this.availableProperties.forEach((str) => {
-                    self.ws.send(JSON.stringify({type: "request", data: {action: "subscribe", properties: [str]}}));
+                    self.ws.send(JSON.stringify({ type: "request", data: { action: "subscribe", properties: [str] } }));
                 });
             });
         }
@@ -108,27 +108,27 @@ class BMDevice {
     // Returns a JSON Object of data we got from the device
     GETdata(endpoint) {
         // Just call sendRequest
-        return sendRequest("GET", this.APIAddress+endpoint);
+        return sendRequest("GET", this.APIAddress + endpoint);
     }
 
     // Send JSON Object data to the device
     PUTdata(endpoint, data) {
         // Just call sendRequest
-        return sendRequest("PUT", this.APIAddress+endpoint, data);
+        return sendRequest("PUT", this.APIAddress + endpoint, data);
     }
-    
+
     // ================= SETTERS =================
     // Basically just wrappers for PUT requests to specific endpoints
 
     // If the optional parameter is set to false, it will stop recording 
     record(state = true) {
-        this.PUTdata("/transports/0/record",{recording: state});
+        this.PUTdata("/transports/0/record", { recording: state });
     }
 
     toggleRecord() {
         let recordState = this.propertyData['/transports/0/record'].recording;
 
-        this.PUTdata("/transports/0/record",{recording: !recordState});
+        this.PUTdata("/transports/0/record", { recording: !recordState });
     }
 
     play() {
@@ -151,7 +151,7 @@ class BMDevice {
         let i = 0;
 
         clips.forEach((clip) => {
-            if ((runningSum+clip.frameCount > playbackData.position) && !currentClipFound) {
+            if ((runningSum + clip.frameCount > playbackData.position) && !currentClipFound) {
                 currentClipIndex = i;
                 currentClipFound = true;
             }
@@ -160,7 +160,7 @@ class BMDevice {
             i++;
         });
 
-        let newClipIndex = Math.min(Math.max(0,(direction ? currentClipIndex+1 : currentClipIndex-1)), clips.length-1);
+        let newClipIndex = Math.min(Math.max(0, (direction ? currentClipIndex + 1 : currentClipIndex - 1)), clips.length - 1);
 
         playbackData.position = clipStartingTimecodes[newClipIndex];
 
@@ -191,9 +191,13 @@ class BMDevice {
 class BMCamera extends BMDevice {
     // Child class constructor
     // Just passing the hostname and security to the superclass's constructor
-    constructor(hostname, secure=false) {
+    constructor(hostname, secure = false) {
         super(hostname, secure);
+        // Fetch supported formats during initialization
+        this.supportedFormats = this.GETdata("/system/supportedFormats").supportedFormats || [];
     }
+
+    supportedFormats;
 
     // Sets the white balance and tint based on the following preset:
     // 0: Sunlight, 1: Tungsten, 2: Fluorescent, 3: Shade, 4: Cloudy
@@ -201,7 +205,7 @@ class BMCamera extends BMDevice {
     setWhiteBalancePreset(presetIndex) {
         let newWhiteBalance;
         let newWhiteBalanceTint;
-        
+
         switch (presetIndex) {
             case 0:
                 // Sunlight
@@ -234,8 +238,8 @@ class BMCamera extends BMDevice {
                 newWhiteBalanceTint = this.GETdata("/video/whiteBalanceTint").whiteBalanceTint;
         }
 
-        this.PUTdata("/video/whiteBalance",{whiteBalance: newWhiteBalance});
-        this.PUTdata("/video/whiteBalanceTint",{whiteBalanceTint: newWhiteBalanceTint});
+        this.PUTdata("/video/whiteBalance", { whiteBalance: newWhiteBalance });
+        this.PUTdata("/video/whiteBalanceTint", { whiteBalanceTint: newWhiteBalanceTint });
     }
 
     doAutoFocus() {
@@ -258,7 +262,7 @@ function sendRequest(method, url, data) {
     let responseObject = {};
 
     // Define the onload function
-    xhr.onload = function() {
+    xhr.onload = function () {
         if (this.status < 300) {                            // If the operation is successful
             if (this.responseText)
                 responseObject = JSON.parse(this.responseText);     // Give the data to the responseObject

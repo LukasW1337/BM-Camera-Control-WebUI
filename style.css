@@ -164,6 +164,7 @@ input[type=file]:focus {
     color: white;
     margin-left: 1.3vw;
     font-weight: 100;
+    
 }
 
 #cameraSelectContainer {
@@ -467,4 +468,34 @@ table, td {
 
 td, tr {
     align-items: center;
+}
+
+/* Tabbed Interface Styles */
+.tabContainer {
+    margin-top: 20px;
+}
+
+.tabHeader {
+    display: flex;
+    border-bottom: 2px solid #ccc;
+}
+
+.tabButton {
+
+    border: none;
+    outline: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.tabButton.active {
+    background: #e66c01;
+    font-weight: bold;
+}
+
+.tabContent {
+    display: none;
+    padding: 20px;
+    border-top: none;
 }
